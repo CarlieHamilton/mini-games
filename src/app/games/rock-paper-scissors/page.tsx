@@ -9,58 +9,65 @@ export default function Page() {
   const [computerChoice, setComputerChoice] = useState<Choice | undefined>(
     undefined
   );
-  const [computerScore, setComputerScore] = useState<number>(0);
   const [humanChoice, setHumanChoice] = useState<Choice | undefined>(undefined);
   const [humanScore, setHumanScore] = useState<number>(0);
+  const [totalGamesPlayed, setTotalGamesPlayed] = useState<number>(0);
+  const [gameResult, setGameResult] = useState<Winner | undefined>(undefined);
 
   const getComputerChoice = () => {
     let choice = Math.floor(Math.random() * 3);
     switch (choice) {
       case 0:
-        setComputerChoice("rock");
-        break;
+        return "rock";
       case 1:
-        setComputerChoice("paper");
-        break;
+        return "paper";
       case 2:
-        setComputerChoice("scissors");
-        break;
+        return "scissors";
+      default:
+        return undefined;
     }
   };
 
-  const winner = (): Winner => {
+  const winner = (humanChoice: Choice, computerChoice: Choice): Winner => {
     switch (humanChoice) {
       case "rock":
-        if (computerChoice === "rock") {
-          return 0;
-        } else if (computerChoice === "paper") {
-          return -1;
-        } else {
-          return 1;
-        }
+        return computerChoice === "rock"
+          ? 0
+          : computerChoice === "paper"
+            ? -1
+            : 1;
       case "scissors":
-        if (computerChoice === "rock") {
-          return -1;
-        } else if (computerChoice === "paper") {
-          return 1;
-        } else {
-          return 0;
-        }
+        return computerChoice === "rock"
+          ? -1
+          : computerChoice === "paper"
+            ? 1
+            : 0;
       case "paper":
-        if (computerChoice === "rock") {
-          return 1;
-        } else if (computerChoice === "paper") {
-          return 0;
-        } else {
-          return -1;
-        }
+        return computerChoice === "rock"
+          ? 1
+          : computerChoice === "paper"
+            ? 0
+            : -1;
       default:
         return 0;
     }
   };
 
-  const endGameText = () => {
-    const gameWinner = winner();
+  useEffect(() => {
+    if (humanChoice && computerChoice) {
+      const winnerResult = winner(humanChoice, computerChoice);
+
+      setGameResult(winnerResult);
+      setTotalGamesPlayed((prev) => prev + 1);
+      if (winnerResult === 1) {
+        setHumanScore((prev) => {
+          return prev + 1;
+        });
+      }
+    }
+  }, [humanChoice, computerChoice]);
+
+  const endGameText = (gameWinner: Winner | undefined) => {
     switch (gameWinner) {
       case -1:
         return "Computer wins";
@@ -68,14 +75,15 @@ export default function Page() {
         return "It's a tie";
       case 1:
         return "Human wins";
+      default:
+        return "";
     }
   };
 
-  useEffect(() => {});
-
   const getChoices = (humanChoice: Choice) => {
+    let updatedComputerChoice: Choice | undefined = getComputerChoice();
     setHumanChoice(humanChoice);
-    getComputerChoice();
+    setComputerChoice(updatedComputerChoice);
   };
 
   return (
@@ -106,9 +114,13 @@ export default function Page() {
         <>
           <p>Computer chooses: {computerChoice}</p>
           <p>Human chooses: {humanChoice}</p>
-          <p>{endGameText()}</p>
+          <p>{endGameText(gameResult)}</p>
+          <p></p>
         </>
       )}
+      <p>
+        You have won {humanScore} out of {totalGamesPlayed} games
+      </p>
     </>
   );
 }
