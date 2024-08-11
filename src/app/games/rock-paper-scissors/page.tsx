@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 type Choice = "paper" | "scissors" | "rock";
-type Winner = 0 | 1 | -1;
+type Winner = "computer" | "human" | "tie";
 
 export default function Page() {
   const [computerChoice, setComputerChoice] = useState<Choice | undefined>(
@@ -32,24 +32,24 @@ export default function Page() {
     switch (humanChoice) {
       case "rock":
         return computerChoice === "rock"
-          ? 0
+          ? "tie"
           : computerChoice === "paper"
-            ? -1
-            : 1;
+            ? "computer"
+            : "human";
       case "scissors":
         return computerChoice === "rock"
-          ? -1
+          ? "computer"
           : computerChoice === "paper"
-            ? 1
-            : 0;
+            ? "human"
+            : "tie";
       case "paper":
         return computerChoice === "rock"
-          ? 1
+          ? "human"
           : computerChoice === "paper"
-            ? 0
-            : -1;
+            ? "tie"
+            : "computer";
       default:
-        return 0;
+        return "tie";
     }
   };
 
@@ -59,21 +59,19 @@ export default function Page() {
 
       setGameResult(winnerResult);
       setTotalGamesPlayed((prev) => prev + 1);
-      if (winnerResult === 1) {
-        setHumanScore((prev) => {
-          return prev + 1;
-        });
+      if (winnerResult === "human") {
+        setHumanScore((prev) => prev + 1);
       }
     }
   }, [humanChoice, computerChoice]);
 
   const endGameText = (gameWinner: Winner | undefined) => {
     switch (gameWinner) {
-      case -1:
+      case "computer":
         return "Computer wins";
-      case 0:
+      case "tie":
         return "It's a tie";
-      case 1:
+      case "human":
         return "Human wins";
       default:
         return "";
